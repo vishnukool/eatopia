@@ -1,0 +1,253 @@
+Reason for consult: <Extract Reason (e.g., weight loss; low FODMAP diet; reduce bloating; improve energy; manage emotional eating)>
+Patient Summary: Patient is a `<Extract Age (e.g., 39)>`-year-old `<Extract Gender (e.g., female)>` with past medical history of `<Extract PMH list (e.g., anemia, hypertension, type 2 diabetes, bipolar disorder, obesity)>
+Patient Goals: <Extract Goals (e.g., lose 10 lb; reduce post-meal bloating; maintain energy through afternoon; curb emotional snacking)>
+Past Medical History:
+Past Medical History:
+
+
+
+
+Diagnosis
+Date
+Notes
+<Extract Dx1 (e.g., Anemia)>
+<Extract Dx1 Date (e.g., 07/28/2016)>
+<Extract Dx1 Notes (e.g., treated with oral folate)>
+<Extract Dx2 (e.g., Bipolar disorder)>
+<Extract Dx2 Date (e.g., 03/15/2018)>
+<Extract Dx2 Notes (e.g., stable on lithium)>
+<Extract Dx3 (e.g., Hypertension)>
+<Extract Dx3 Date (e.g., 11/05/2019)>
+<Extract Dx3 Notes (e.g., stage 1, diet-controlled)>
+<Extract Dx4 (e.g., Obesity)>
+<Extract Dx4 Date (e.g., 02/01/2022)>
+<Extract Dx4 Notes (e.g., BMI 30.1; IBW 83%)>
+
+
+
+Past Surgical History:
+
+
+
+
+Procedure
+Laterality
+Date
+<Extract Procedure1 (e.g., cholecystectomy)>
+<Extract Lat1 (e.g., N/A)>
+<Extract Proc1 Date (e.g., 09/12/2015)>
+
+Pertinent Social Hx:
+Item
+Detail
+Occupation
+<Extract Occupation (e.g., elementary teacher)>
+Smoking
+<Extract Smoking (e.g., former, quit 2018; 5 py)>
+Drinking
+<Extract Drinking (e.g., 1–2 wine/week)>
+Who cooks at home
+<Extract Cook (e.g., patient alone)>
+Eating out
+<Extract Eating Out (e.g., 2–3×/month)>
+Grocery budget
+<Extract Budget (e.g., $120/week)>
+Daily lifestyle
+<Extract Lifestyle (e.g., sedentary job; dog walk 30 min/day)>
+Sleep pattern
+<Extract Sleep (e.g., 7 hrs/night; 10 pm–5 am)>
+Meals per day
+<Extract Meals (e.g., 3 meals + 2 snacks)>
+
+Pertinent Medications:
+Medication
+Dose & Frequency
+Indication
+<Extract Med1 Name (e.g., Metformin)>
+<Extract Med1 Dose (e.g., 1000 mg BID)>
+<Extract Med1 Indication (e.g., T2D)>
+<Extract Supplement1 Name (e.g., Centrum Silver Multivitamin)>
+<Extract Supplement1 Dose (e.g., 1 tablet daily)>
+<Extract Supplement1 Indication (e.g., General Support)>
+
+Pertinent Labs (if any):
+Condition
+Test(s)
+Last Value (date)
+Anemia
+<Extract Anemia Tests (e.g., CBC, ferritin)>
+<Extract Anemia Value (e.g., Hgb 11.2 g/dL 4/15)>
+Hypertension
+<Extract HTN Tests (e.g., A1C, lipid panel)>
+<Extract HTN Value (e.g., A1C 7.1%; LDL 130 mg/dL)>
+Diabetes
+<Extract DM Tests (e.g., A1C)>
+<Extract DM Value (e.g., A1C 7.1%)>
+Bipolar disorder
+<Extract Bipolar Tests (e.g., Ca, Vit D)>
+<Extract Bipolar Value (e.g., Ca 9.4; Vit D 28)>
+Obesity
+<Extract Obesity Tests (e.g., TSH)>
+<Extract Obesity Value (e.g., TSH 2.1)>
+
+Gastrointestinal Symptoms:
+Symptom
+Detail
+Bowel movement
+<Extract BM Frequency (e.g., every other day)>
+Nausea
+<Extract Nausea (e.g., none, Yes)>
+Vomiting
+<Extract Vomiting (e.g., none)>
+Diarrhea
+<Extract Diarrhea (e.g., occasional 1×/mo)>
+Constipation
+<Extract Constipation (e.g., mild; every 2 days)>
+
+Enteral or parenteral access:
+Access type
+Detail
+<Extract Access Type (e.g., none; PEG tube)>
+<Extract Access Detail>
+
+Lifestyle & Behavior Patterns:
+Domain
+Detail
+Physical activity
+<Extract Activity (e.g., dog walk 30 min/day; yoga 2×/week; House cleaning)>
+Work/stress schedule
+<Extract Work (e.g., teaching 8–3; grading evenings)>`
+Sleep quality
+<Extract Sleep Quality (e.g., wakes once/night; no daytime sleepiness)>
+Hydration habits
+<Extract Hydration (e.g., 2 L water/day; 2 coffee)>
+
+Psychosocial & Readiness:
+Factor
+Detail
+Motivation & goals
+<Extract Motivation (e.g., lose 10 lb; reduce bloating; confidence 6/10)>
+Eating behaviors
+<Extract Eating Behaviors (e.g., emotional snacking evenings)>
+Social support
+<Extract Social Support (e.g., spouse; friend accountability)>
+Financial constraints
+<Extract Financial (e.g., OK specialty foods within budget)>
+
+Culinary Skills & Kitchen Environment:
+Skill / Resource
+Detail
+Cooking skills
+<Extract Cooking Skills (e.g., intermediate; batch cook)>
+Kitchen inventory
+<Extract Inventory (e.g., stovetop, air fryer, freezer)>
+Meal-prep capacity
+<Extract Meal-prep (e.g., 2 hrs Sunday batch)>
+
+Food Access & Preferences:
+Item
+Detail
+Grocery shopping habits
+<Extract Grocery Habits (e.g., WF weekly; market bi-weekly)>
+Cultural practices
+<Extract Cultural (e.g., Daniel Fast until May 9)>
+Taste/texture notes
+<Extract Taste (e.g., prefers savory; avoids spicy)>
+Favorite meals
+<Extract Favorites (e.g., rice bowls; stir-fries)>
+
+Nutrition History: <Extract Nutrition History (e.g., attempted vegetarian diet 5 yrs; no sustained weight loss)>
+Food allergies: <Extract Allergies (e.g., lactose intolerance)>
+Current diet: 24-hr diet recall
+Meal
+Time
+Food Items
+Occasion
+Who prepared
+Eaten with
+1st meal upon wake up
+<Extract Time1 (e.g., 6:30 am)>
+<Extract Items1 (e.g., Oatmeal with banana slices; black coffee)>
+Breakfast
+Patient
+Alone
+Morning snack
+<Extract Time2>
+<Extract Items2 (e.g., Carrot sticks + hummus)>
+Snack
+Patient
+Alone
+2nd meal
+<Extract Time3>
+Brown rice bowl with tofu, spinach, mushrooms
+Lunch
+Patient
+Colleague
+Afternoon snack
+<Extract Time4>
+Plain yogurt (dairy-free) + blueberries
+Snack
+Patient
+Alone
+3rd meal
+<Extract Time5>
+Grilled chicken breast, sweet potato, broccoli
+Dinner
+Patient
+Spouse
+Evening snack
+<Extract Time6>
+Handful of almonds
+Snack
+Patient
+Alone
+Supplements
+<Extract TimeSupp>
+Multivitamin, folic acid
+—
+Patient
+Alone
+Drinks
+<Extract DrinkTiming>
+Water (2 L), green tea (1 cup)
+—
+—
+—
+
+Nutrition Focused Physical Exam (if in person appointment)
+Finding
+Detail
+Edema
+None
+Abdomen
+Soft, non-tender
+Skin
+Mild dryness on shins
+Body fat stores
+Mild excess (triceps pinch > 20 mm)
+Lean body mass stores
+Adequate (clavicle visibility)
+
+Anthropometrics:
+Height: 170.2 cm (5' 7")
+Admit Weight: 87.1 (stated) 2/1; 83% IBW
+Ideal Body Weight: 72.4 kg + 10%
+BMI: 30.07 kg/(m^2)
+Weight Hx:
+WEIGHTS
+Weight (metric)
+Weight (standard)
+Weight Method
+2/1/2022
+87.091 kg
+192 lbs
+Stated
+8/17/2021
+87.091 kg
+192 lbs
+--
+
+Estimated Nutrient Needs:  (Based on IBW 72.4 kg)
+1800 - 2150 kcal/day (25-30 kcal/kg)
+60 - 75 g protein/day (0.8-1.0 g/kg)
+1800 - 2150 mL fluid/day (25-30 mL/kg)

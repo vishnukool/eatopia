@@ -19,20 +19,140 @@
   display: flex;
   flex-direction: column;
   align-items: center;
-  justify-content: center;
-  font-size: calc(10px + 2vmin);
+  justify-content: flex-start;
+  font-size: calc(10px + 1vmin);
   color: white;
+  padding: 2rem;
 }
 
-.App-link {
+h1 {
   color: #61dafb;
+  margin-bottom: 0.5rem;
 }
 
-@keyframes App-logo-spin {
-  from {
-    transform: rotate(0deg);
+.app-description {
+  margin-bottom: 2rem;
+  font-style: italic;
+  opacity: 0.8;
+}
+
+.controls {
+  display: flex;
+  gap: 1rem;
+  margin-bottom: 2rem;
+}
+
+.record-button {
+  background-color: #4CAF50;
+  color: white;
+  border: none;
+  padding: 0.75rem 1.5rem;
+  border-radius: 25px;
+  font-size: 1rem;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.record-button:hover {
+  background-color: #45a049;
+}
+
+.record-button.recording {
+  background-color: #f44336;
+  animation: pulse 1.5s infinite;
+}
+
+.record-button.recording:hover {
+  background-color: #d32f2f;
+}
+
+.reset-button {
+  background-color: #2196F3;
+  color: white;
+  border: none;
+  padding: 0.75rem 1.5rem;
+  border-radius: 25px;
+  font-size: 1rem;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+}
+
+.reset-button:hover {
+  background-color: #0b7dda;
+}
+
+.content-container {
+  display: flex;
+  width: 100%;
+  gap: 2rem;
+  max-width: 1400px;
+}
+
+.transcript-container, .summary-container {
+  flex: 1;
+  background-color: rgba(255, 255, 255, 0.1);
+  border-radius: 8px;
+  padding: 1.5rem;
+  height: 60vh;
+  display: flex;
+  flex-direction: column;
+}
+
+.transcript, .summary {
+  background-color: rgba(0, 0, 0, 0.2);
+  border-radius: 8px;
+  padding: 1rem;
+  text-align: left;
+  overflow-y: auto;
+  flex-grow: 1;
+  white-space: pre-wrap;
+  font-size: 0.9rem;
+  line-height: 1.5;
+}
+
+h2 {
+  font-size: 1.2rem;
+  margin-top: 0;
+  margin-bottom: 1rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.live-indicator {
+  color: #f44336;
+  margin-left: 0.5rem;
+  font-weight: normal;
+  animation: pulse 1.5s infinite;
+}
+
+.loading-indicator {
+  color: #FFD700;
+  margin-left: 0.5rem;
+  font-weight: normal;
+  font-style: italic;
+}
+
+.error-message {
+  color: #f44336;
+  background-color: rgba(244, 67, 54, 0.1);
+  padding: 1rem;
+  border-radius: 8px;
+  max-width: 600px;
+}
+
+@keyframes pulse {
+  0% { opacity: 1; }
+  50% { opacity: 0.5; }
+  100% { opacity: 1; }
+}
+
+@media (max-width: 768px) {
+  .content-container {
+    flex-direction: column;
   }
-  to {
-    transform: rotate(360deg);
+  
+  .transcript-container, .summary-container {
+    height: 40vh;
   }
 }
