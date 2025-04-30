@@ -178,16 +178,6 @@ IF NO DATA IS PRESENT, LEAVE THE FIELD EMPTY. BUT STILL INCLUDE THE TEMPLATE AS 
     }
   }, [transcript, updateMeetingSummary]);
 
-  // When the listening state changes
-  useEffect(() => {
-    console.log("Listening state changed:", listening);
-    // Update once when we stop listening (for the final summary)
-    if (!listening && transcript && transcript.trim().length > 0) {
-      console.log('Listening stopped, generating final summary for', transcript.length, "characters");
-      updateMeetingSummary(transcript);
-    }
-  }, [listening, transcript, updateMeetingSummary]);
-
   if (!browserSupportsSpeechRecognition) {
     return (
       <div className="App">
@@ -228,10 +218,6 @@ IF NO DATA IS PRESENT, LEAVE THE FIELD EMPTY. BUT STILL INCLUDE THE TEMPLATE AS 
 
   const stopListening = () => {
     SpeechRecognition.stopListening();
-    // Trigger final summary update when stopping
-    if (transcript && transcript.trim().length > 0) {
-      updateMeetingSummary(transcript);
-    }
   };
 
   const handleReset = () => {
