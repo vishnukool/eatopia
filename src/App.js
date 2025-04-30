@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect, useRef, useCallback } from 'react';
 import SpeechRecognition, { useSpeechRecognition } from 'react-speech-recognition';
 import { GoogleGenAI } from '@google/genai'; // Correct import name
 import './App.css';
@@ -227,7 +227,6 @@ function App() {
   const [showErrorMessage, setShowErrorMessage] = useState(false);
   const [meetingSummary, setMeetingSummary] = useState('');
   const [isLoadingSummary, setIsLoadingSummary] = useState(false);
-  const previousTranscriptRef = useRef('');
   const lastSummarizedLengthRef = useRef(0);
   
   // For debugging
@@ -235,26 +234,7 @@ function App() {
     console.log("Transcript changed:", transcript ? transcript.length : 0, "characters");
   }, [transcript]);
 
-  // When the transcript changes, check if we need to update the summary
-  useEffect(() => {
-    if (transcript && transcript.length >= lastSummarizedLengthRef.current + 50) {
-      console.log(`Transcript reached ${transcript.length} characters, generating new summary`);
-      updateMeetingSummary(transcript);
-      lastSummarizedLengthRef.current = transcript.length;
-    }
-  }, [transcript]);
-
-  // When the listening state changes
-  useEffect(() => {
-    console.log("Listening state changed:", listening);
-    // Update once when we stop listening (for the final summary)
-    if (!listening && transcript && transcript.trim().length > 0) {
-      console.log('Listening stopped, generating final summary for', transcript.length, "characters");
-      updateMeetingSummary(transcript);
-    }
-  }, [listening, transcript]);
-
-  const updateMeetingSummary = async (text) => {
+  const updateMeetingSummary = useCallback(async (text) => {
     console.log("updateMeetingSummary called with", text.length, "characters");
     
     if (!text || text.trim().length === 0) {
@@ -354,7 +334,26 @@ IF NO DATA IS PRESENT, LEAVE THE FIELD EMPTY. BUT STILL INCLUDE THE TEMPLATE AS 
       console.log("Setting isLoadingSummary to false");
       setIsLoadingSummary(false);
     }
-  };
+  }, [isLoadingSummary]);
+
+  // When the transcript changes, check if we need to update the summary
+  useEffect(() => {
+    if (transcript && transcript.length >= lastSummarizedLengthRef.current + 50) {
+      console.log(`Transcript reached ${transcript.length} characters, generating new summary`);
+      updateMeetingSummary(transcript);
+      lastSummarizedLengthRef.current = transcript.length;
+    }
+  }, [transcript, updateMeetingSummary]);
+
+  // When the listening state changes
+  useEffect(() => {
+    console.log("Listening state changed:", listening);
+    // Update once when we stop listening (for the final summary)
+    if (!listening && transcript && transcript.trim().length > 0) {
+      console.log('Listening stopped, generating final summary for', transcript.length, "characters");
+      updateMeetingSummary(transcript);
+    }
+  }, [listening, transcript, updateMeetingSummary]);
 
   if (!browserSupportsSpeechRecognition) {
     return (
