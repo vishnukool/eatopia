@@ -1,53 +1,139 @@
+// App.js – fully updated with enhanced system prompt, automatic date stamp, and richer nutrition template
+
 import { useState, useEffect, useRef, useCallback } from 'react';
 import SpeechRecognition, { useSpeechRecognition } from 'react-speech-recognition';
-import { GoogleGenAI } from '@google/genai'; // Correct import name
+import { GoogleGenAI } from '@google/genai';
 import ReactMarkdown from 'react-markdown';
 import './App.css';
 
-// Medical notes template
+// —————————————————————————————————————————————
+// Helper: stamp every note with the day it was taken
+// —————————————————————————————————————————————
+const TODAY = new Date().toLocaleDateString('en-US'); // e.g. 4/30/2025
+
+// —————————————————————————————————————————————
+// Canonical nutrition‑consult template (markdown)
+// Insert TODAY as default Admit Date; placeholders stay if not in transcript
+// —————————————————————————————————————————————
 const MEDICAL_NOTES_TEMPLATE = `
+**Admit Date**: ${TODAY}
 
-Reason for consult: <Reason for consult goes here>
-Patient Summary: <Patient summary goes here>
-Patient Goals: <Patient goals go here>
+**Reason for consult:** <Extract Reason>
 
-Past Medical History:
-<Past medical history goes here>
+**Patient Summary:** Patient is a \`<Extract Age>\`‑year‑old \`<Extract Gender>\` with past medical history of \`<Extract PMH list>\`
 
-Past Surgical History:
-<Past surgical history goes here>
+**Patient Goals:** <Extract Goals>
 
-Current Medications:
-<Current medications go here>
+**Past Medical History:**
+| Diagnosis | Date | Notes |
+|-----|-----|-----|
+| <Dx1> | <Dx1 Date> | <Dx1 Notes> |
 
-Pertinent Medications:
-<Pertinent medications go here>
+**Past Surgical History:**
+| Procedure | Laterality | Date |
+|-----|-----|-----|
+| <Proc1> | <Lat> | <Date> |
 
-Current Medications:
-<Current medications go here>
+**Pertinent Social Hx:**
+| Item | Detail |
+|-----|-----|
+| Occupation | <Occupation> |
+| Smoking | <Smoking> |
+| Drinking | <Drinking> |
+| Who cooks at home | <Cook> |
+| Eating out | <Eating Out> |
+| Grocery budget | <Budget> |
+| Daily lifestyle | <Lifestyle> |
+| Sleep pattern | <Sleep> |
+| Meals per day | <Meals> |
 
-Nutrition History:
-<Nutrition history goes here>
+**Pertinent Medications:**
+| Medication | Dose & Frequency | Indication |
+|-----|-----|-----|
+| <Med1 Name> | <Med1 Dose> | <Med1 Indication> |
 
-Food allergies:
-<Food allergies go here> 
+**Pertinent Labs (if any):**
+| Condition | Test(s) | Last Value (date) |
+|-----|-----|-----|
+| Anemia | <Anemia Tests> | <Anemia Value> |
 
-Current Diet:
-<Current diet goes here>
+**Gastrointestinal Symptoms:**
+| Symptom | Detail |
+|-----|-----|
+| Bowel movement | <BM Frequency> |
 
-Current Medications:
-<Current medications go here>
+**Enteral or parenteral access:**
+| Access type | Detail |
+|-----|-----|
+| <Access Type> | <Access Detail> |
 
-BODY MEASUREMENTS:
-<Body measurements go here>
+**Lifestyle & Behavior Patterns:**
+| Domain | Detail |
+|-----|-----|
+| Physical activity | <Activity> |
+| Work/stress schedule | <Work> |
+| Sleep quality | <Sleep Quality> |
+| Hydration habits | <Hydration> |
 
+**Psychosocial & Readiness:**
+| Factor | Detail |
+|-----|-----|
+| Motivation & goals | <Motivation> |
 
+**Culinary Skills & Kitchen Environment:**
+| Skill / Resource | Detail |
+|-----|-----|
+| Cooking skills | <Cooking Skills> |
 
+**Food Access & Preferences:**
+| Item | Detail |
+|-----|-----|
+| Grocery shopping habits | <Grocery Habits> |
+
+**Nutrition History:** <Nutrition History>
+
+**Food allergies:** <Food Allergies>
+
+**Current diet (24‑hr recall):**
+| Meal | Time | Food Items | Occasion | Who prepared | Eaten with |
+|-----|-----|-----|-----|-----|-----|
+| 1st meal | <Time1> | <Items1> | <Occasion1> | <Who1> | <With1> |
+
+**NFPE:**
+| Finding | Detail |
+|-----|-----|
+| Edema | <Edema> |
+
+**Anthropometrics:**
+Height: <Height>  
+Admit Weight: <Weight>  
+Ideal Body Weight: <IBW>  
+BMI: <BMI>
+
+**Estimated Nutrient Needs:**  
+Energy: <kcal/day> kcal/day  
+Protein: <protein range> g/day  
+Fluid: <fluid range> mL/day  
+
+---
+
+**Nutrition Assessment and Diagnosis**  
+<Assessment Narrative>
+
+**Malnutrition Status:** <Malnutrition Status>
+
+**Nutrition Intervention:**  
+1. <Intervention1>
+
+**Nutrition Monitoring/Evaluation:**  
+1. <Monitoring Step1>
+
+---END OF TEMPLATE---
 `;
 
 // Initialize the GoogleGenAI client
 const genAI = new GoogleGenAI({ apiKey: process.env.REACT_APP_GEMINI_API_KEY });
-console.log("Gemini API initialized");
+console.log('Gemini API initialized');
 
 function App() {
   const {
@@ -55,138 +141,91 @@ function App() {
     listening,
     resetTranscript,
     browserSupportsSpeechRecognition,
-    isMicrophoneAvailable
+    isMicrophoneAvailable,
   } = useSpeechRecognition();
 
   const [showErrorMessage, setShowErrorMessage] = useState(false);
   const [meetingSummary, setMeetingSummary] = useState('');
   const [isLoadingSummary, setIsLoadingSummary] = useState(false);
   const lastSummarizedLengthRef = useRef(0);
-  
-  // For debugging
+
+  // Debugging helper
   useEffect(() => {
-    console.log("Transcript changed:", transcript ? transcript.length : 0, "characters");
+    if (transcript) {
+      console.log('Transcript length:', transcript.length);
+    }
   }, [transcript]);
 
-  const updateMeetingSummary = useCallback(async (text) => {
-    console.log("updateMeetingSummary called with", text.length, "characters");
-    
-    if (!text || text.trim().length === 0) {
-      console.log("Text is empty, not updating summary");
-      return;
-    }
-    
-    // Don't update if we're already loading a summary
-    if (isLoadingSummary) {
-      console.log('Summary already loading, skipping update');
-      return;
-    }
-    
-    console.log("Actually calling Gemini API now");
-    setIsLoadingSummary(true);
-    try {
-      // Use gemini-1.5-pro or gemini-1.5-flash instead of gemini-pro
-      const result = await genAI.models.generateContent({
-        model: "gemini-1.5-pro",
-        contents: [
-          {
-            role: "user",
-            parts: [{ text: "Process the following nutrition consultation transcript and extract relevant medical information: " + text }]
-          }
-        ],
-        // Set system instructions properly - this is a separate field at the top level
-        systemInstruction: {
-          role: "system", // Explicit role is important
-          parts: [
-            { 
-              text: `You are a medical notes generator for nutrition consultations. Your task is to extract relevant medical and nutritional information from consultation transcripts and format them according to a specific template.
+  // —————————————————————————————————————————————
+  // Calls Gemini when transcript grows by ≥50 characters
+  // —————————————————————————————————————————————
+  const updateMeetingSummary = useCallback(
+    async (text) => {
+      if (!text?.trim() || isLoadingSummary) return;
+      setIsLoadingSummary(true);
+      try {
+        const result = await genAI.models.generateContent({
+          model: 'gemini-2.0-flash',
+          contents: [
+            {
+              role: 'user',
+              parts: [
+                {
+                  text:
+                    'Process the following nutrition consultation transcript and extract relevant medical information:\n\n' +
+                    text,
+                },
+              ],
+            },
+          ],
+          systemInstruction: {
+            role: 'system',
+            parts: [
+              {
+                text: `You are a clinical documentation specialist for nutrition consultations.\n\nReturn **only** a filled‑out copy of the markdown template between the 🚩 flags—no additional commentary.\n\nExtraction rules\n1. Pull facts verbatim from the transcript; **never invent data**.\n2. If a field is missing, leave its placeholder unchanged.\n3. Preserve markdown tables, headings, and spacing exactly.\n4. Keep sections in **exact** order.\n5. The **Admit Date** is pre‑filled with today's date (${TODAY}); overwrite it **only** if the transcript explicitly provides another admit date.\n\n🚩\n${MEDICAL_NOTES_TEMPLATE}\n🚩`,
+              },
+            ],
+          },
+          generationConfig: {
+            temperature: 0.2,
+            maxOutputTokens: 2048,
+          },
+        });
 
-Follow these guidelines:
-1. Extract specific information from the transcript including patient demographics, medical history, diet patterns, and nutritional goals
-2. Format the information using the exact template provided below
-3. If the transcript doesn't contain information for a particular field, leave it empty or with the placeholder text
-4. Do not add information that isn't in the transcript
-5. Maintain the exact formatting of the template including headers, tables, and spacing
-6. Do not respond to the content directly - only provide the formatted medical notes
-
-ALWAYS OUTPUT ALL SECTIONS IN THIS TEMPLATE. NOTES SHOULD ALWAYS BE IN THIS FORMAT.
-IF NO DATA IS PRESENT, LEAVE THE FIELD EMPTY. BUT STILL INCLUDE THE TEMPLATE AS A PLACE HOLDER.
-
-Here is the template to use:
-
----START OF TEMPLATE---
-
-${MEDICAL_NOTES_TEMPLATE}
-
----END OF TEMPLATE---
-
-ALWAYS OUTPUT ALL SECTIONS IN THIS TEMPLATE. NOTES SHOULD ALWAYS BE IN THIS FORMAT.
-IF NO DATA IS PRESENT, LEAVE THE FIELD EMPTY. BUT STILL INCLUDE THE TEMPLATE AS A PLACE HOLDER.
-              `
-            }
-          ]
-        },
-        generationConfig: {
-          temperature: 0.2,
-          maxOutputTokens: 2048
-        }
-      });
-      
-      console.log("Gemini API responded:", result);
-      
-      // Extract text from the response
-      if (result.candidates && result.candidates.length > 0) {
-        // Access the text from the first candidate
-        const candidate = result.candidates[0];
-        if (candidate.content && candidate.content.parts && candidate.content.parts.length > 0) {
-          const textContent = candidate.content.parts[0].text;
-          if (textContent) {
-            console.log("Setting medical notes with content from API");
-            setMeetingSummary(textContent);
-          } else {
-            console.error('No text content in response parts');
-            setMeetingSummary("No text content found in the API response.");
-          }
+        const content = result?.candidates?.[0]?.content?.parts?.[0]?.text;
+        if (content) {
+          setMeetingSummary(content);
         } else {
-          console.error('No content parts in candidate', candidate);
-          setMeetingSummary("Error: Could not find content in API response.");
+          setMeetingSummary('No text content found in the API response.');
         }
-      } else {
-        console.error('Unexpected response structure:', result);
-        setMeetingSummary("Error: Could not extract medical notes from API response.");
+      } catch (error) {
+        console.error('Error generating medical notes:', error);
+        setMeetingSummary('Error generating medical notes. Check console.');
+      } finally {
+        setIsLoadingSummary(false);
       }
+    },
+    [isLoadingSummary]
+  );
 
-    } catch (error) {
-      console.error('Error generating medical notes with @google/genai:', error);
-      // Attempt to parse potential block reason from the error
-      let errorMessage = "Error generating medical notes. Check console.";
-      if (error.message && error.message.includes('SAFETY')) { 
-          errorMessage = "Error: Medical notes generation blocked due to safety settings.";
-      }
-      setMeetingSummary(errorMessage);
-    } finally {
-      console.log("Setting isLoadingSummary to false");
-      setIsLoadingSummary(false);
-    }
-  }, [isLoadingSummary]);
-
-  // When the transcript changes, check if we need to update the summary
+  // Trigger summary update
   useEffect(() => {
     if (transcript && transcript.length >= lastSummarizedLengthRef.current + 50) {
-      console.log(`Transcript reached ${transcript.length} characters, generating new summary`);
       updateMeetingSummary(transcript);
       lastSummarizedLengthRef.current = transcript.length;
     }
   }, [transcript, updateMeetingSummary]);
 
+  // —————————————————————————————————————————————
+  // UI states for unsupported browser / no mic
+  // —————————————————————————————————————————————
   if (!browserSupportsSpeechRecognition) {
     return (
       <div className="App">
         <header className="App-header">
           <h1>Eatopia</h1>
           <p className="error-message">
-            Your browser doesn't support speech recognition.
-            Please try Chrome or Edge.
+            Your browser doesn't support speech recognition. Please try Chrome or Edge.
           </p>
         </header>
       </div>
@@ -199,22 +238,22 @@ IF NO DATA IS PRESENT, LEAVE THE FIELD EMPTY. BUT STILL INCLUDE THE TEMPLATE AS 
         <header className="App-header">
           <h1>Eatopia</h1>
           <p className="error-message">
-            Microphone access is required for recording nutrition consultations.
-            Please allow microphone access and reload the page.
+            Microphone access is required. Please allow microphone access and reload the page.
           </p>
         </header>
       </div>
     );
   }
 
+  // —————————————————————————————————————————————
+  // Recording controls
+  // —————————————————————————————————————————————
   const startListening = () => {
-    // Reset summary when starting a new recording
     setMeetingSummary('');
-    SpeechRecognition.startListening({ continuous: true, language: 'en-US' })
-      .catch(error => {
-        console.error('Error starting speech recognition:', error);
-        setShowErrorMessage(true);
-      });
+    SpeechRecognition.startListening({ continuous: true, language: 'en-US' }).catch((error) => {
+      console.error('Error starting speech recognition:', error);
+      setShowErrorMessage(true);
+    });
   };
 
   const stopListening = () => {
@@ -223,13 +262,16 @@ IF NO DATA IS PRESENT, LEAVE THE FIELD EMPTY. BUT STILL INCLUDE THE TEMPLATE AS 
 
   const handleReset = () => {
     resetTranscript();
-    setMeetingSummary(''); // Also clear the summary
+    setMeetingSummary('');
   };
 
+  // —————————————————————————————————————————————
+  // Render
+  // —————————————————————————————————————————————
   return (
     <div className="App">
       <header className="App-header">
-        <h1 style={{marginTop: '0'}}>Eatopia</h1>
+        <h1 style={{ marginTop: 0 }}>Eatopia</h1>
         <div className="controls">
           <button
             onClick={listening ? stopListening : startListening}
@@ -238,30 +280,29 @@ IF NO DATA IS PRESENT, LEAVE THE FIELD EMPTY. BUT STILL INCLUDE THE TEMPLATE AS 
             {listening ? 'Stop Recording' : 'Start Recording'}
           </button>
           {transcript && (
-            <button
-              onClick={handleReset} // Use updated reset handler
-              className="reset-button"
-            >
+            <button onClick={handleReset} className="reset-button">
               Clear Notes
             </button>
           )}
         </div>
         <div className="content-container">
           <div className="transcript-container">
-            <h2>Call Transcript {listening && <span className="live-indicator">• LIVE</span>}</h2>
+            <h2>
+              Call Transcript {listening && <span className="live-indicator">• LIVE</span>}
+            </h2>
             <div className="transcript">
-              {transcript || "Your nutrition consultation notes will appear here..."}
+              {transcript || 'Your nutrition consultation transcript will appear here.'}
             </div>
           </div>
           <div className="summary-container">
-            <h2>Medical Notes {isLoadingSummary && <span className="loading-indicator">Updating...</span>}</h2>
+            <h2>
+              Medical Notes {isLoadingSummary && <span className="loading-indicator">Updating…</span>}
+            </h2>
             <div className="summary">
               {meetingSummary ? (
-                <ReactMarkdown>
-                  {meetingSummary}
-                </ReactMarkdown>
+                <ReactMarkdown>{meetingSummary}</ReactMarkdown>
               ) : (
-                "Meeting summary will appear here as the consultation progresses..."
+                'Medical notes will appear here as the consultation progresses…'
               )}
             </div>
           </div>
