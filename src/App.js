@@ -1,6 +1,7 @@
 import { useState, useEffect, useRef, useCallback } from 'react';
 import SpeechRecognition, { useSpeechRecognition } from 'react-speech-recognition';
 import { GoogleGenAI } from '@google/genai'; // Correct import name
+import ReactMarkdown from 'react-markdown';
 import './App.css';
 
 // Medical notes template
@@ -255,7 +256,13 @@ IF NO DATA IS PRESENT, LEAVE THE FIELD EMPTY. BUT STILL INCLUDE THE TEMPLATE AS 
           <div className="summary-container">
             <h2>Medical Notes {isLoadingSummary && <span className="loading-indicator">Updating...</span>}</h2>
             <div className="summary">
-              {meetingSummary || "Meeting summary will appear here as the consultation progresses..."}
+              {meetingSummary ? (
+                <ReactMarkdown>
+                  {meetingSummary}
+                </ReactMarkdown>
+              ) : (
+                "Meeting summary will appear here as the consultation progresses..."
+              )}
             </div>
           </div>
         </div>
